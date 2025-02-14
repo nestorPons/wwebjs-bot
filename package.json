@@ -1,0 +1,22 @@
+{
+  "name": "wwebjs-bot",
+  "version": "1.0.0",
+  "main": "main.js",
+  "scripts": {
+    "start": "node ."
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "description": "",
+  "dependencies": {
+    "dotenv": "^16.4.7",
+    "mongodb": "^6.13.0",
+    "openai": "^4.83.0",
+    "qrcode-terminal": "^0.12.0",
+    "sqlite": "^5.1.1",
+    "sqlite3": "^5.1.7",
+    "whatsapp-web.js": "^1.26.0"
+  }
+}
