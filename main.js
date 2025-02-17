@@ -7,33 +7,33 @@ import setThreadId from './src/database/setThreadId.js';
 
 const {Client, LocalAuth} = pkg;
 
-const client = new Client({authStrategy: new LocalAuth()});
+const whatsapp = new Client({authStrategy: new LocalAuth()});
 
-client.on('ready', () => {
+whatsapp.on('ready', () => {
     console.log('Client is ready!');
 });
 
-client.on('qr', qr => {
+whatsapp.on('qr', qr => {
     qrcode.generate(qr, {small: true});
 });
 
-client.on('message_create', async message => {
-    if (rules(message)) return; 
+whatsapp.on('message_create', async message => {
+    const user = await getUserOrCreate(message.from, message.notifyName);
+    if (rules(user, message)) return; 
+    const chat = await message.getChat();
+    chat.sendStateTyping();
     const textMessage = message.body.slice(1);
-    console.log(textMessage);
     const userName = message.notifyName || "Anónimo";
-    const user = await getUserOrCreate(message.from);
     if (user.threadId === null) {
         const newThread = await assistant.thread.create();
         await setThreadId(user.id, newThread.id);
         user.threadId = newThread.id;
         console.log("New thread created for user:", user.id);
     }
-    console.log("Thread ID for user", user.id, ":", user.threadId);
-    console.log("Message:", textMessage);
-    return await assistant.sendMessage(user.threadId, textMessage);
-
+    const respond = await assistant.message(user, textMessage);
+    return whatsapp.sendMessage(message.from, respond);
+    
 });
 
-client.initialize();
+whatsapp.initialize();
 

@@ -3,10 +3,15 @@ import openDatabase from './open.js';
 const createDatabase = async () => {
     const db = await openDatabase();
     await db.exec(`CREATE TABLE IF NOT EXISTS users (
-        user_id TEXT PRIMARY KEY,
+        id TEXT PRIMARY KEY,
+        name TEXT,
+        use_ia INTEGER DEFAULT 1,
         thread_id TEXT
     )`);
-
+    await db.exec(`CREATE TABLE IF NOT EXISTS appointments (
+        user_id TEXT PRIMARY KEY,
+        date TEXT
+    )`);
     return db;
 };
 
