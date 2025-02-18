@@ -4,6 +4,7 @@ import rules from './src/rules.js';
 import assistant from './src/assistant/assistant.js';
 import getUserOrCreate from './src/database/getUser.js';
 import setThreadId from './src/database/setThreadId.js';
+import Message from './src/models/Message.js';
 
 const {Client, LocalAuth} = pkg;
 
@@ -17,15 +18,16 @@ whatsapp.on('qr', qr => {
     qrcode.generate(qr, {small: true});
 });
 
-whatsapp.on('message_create', async message => {
-    console.log(message.from)
+whatsapp.on('message_create', async whatsappMessage => {
+    const message = new Message(whatsappMessage);
     const user = await getUserOrCreate(message.from, message.notifyName);
+    console.log('User: ', user.id);
+    if (rules(user, message)) return 
     if(!user){
         console.log('No User')
         return false
     } 
     
-    if (rules(user, message)) return 
     
     const chat = await message.getChat();
     if(!chat){
@@ -35,9 +37,6 @@ whatsapp.on('message_create', async message => {
 
     chat.sendStateTyping();
     
-    const textMessage = message.body.slice(1);
-    const userName = message.notifyName || "Anónimo";
-
     if (user.threadId === null) {
         console.log('No thread id. Creating....')
         const newThread = await assistant.thread.create();
@@ -45,9 +44,10 @@ whatsapp.on('message_create', async message => {
         user.threadId = newThread.id;
         console.log("New thread created for user:", user.id);
     }
-    const respond = await assistant.message(user, textMessage);
-    return whatsapp.sendMessage(message.from, respond);
-    
+    console.log("Message: ", message.text);
+    const respond = await assistant.message(user, message.text);
+    console.log("Respond: ", respond)
+    return whatsapp.sendMessage(user.id, respond);
 });
 
 whatsapp.initialize();

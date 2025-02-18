@@ -1,6 +1,6 @@
 import openDatabase from './open.js';
-import User from './models/User.js'
-import { Models } from 'openai/resources/models.mjs';
+import User from '../models/User.js'
+
 const getUserOrCreate = async (userId, userName = null) => {
     const db = await openDatabase();
     const row = await db.get(`SELECT * FROM users WHERE id = ?`, userId);
@@ -13,7 +13,7 @@ const getUserOrCreate = async (userId, userName = null) => {
     } else {
         await db.run(`INSERT INTO users (id, name) VALUES (?, ?)`, userId, userName);
     }
-    return User(userId, userName, threadId, true); 
+    return new User(userId, userName, threadId, true); 
 }
 
 export default getUserOrCreate;

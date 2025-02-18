@@ -3,7 +3,9 @@ class User{
     {
         this.id = id
         this.name = name
-        this.thread = threadId
+        this.threadId = threadId
         this.useIA = use
     }
 }
+
+export default User;
