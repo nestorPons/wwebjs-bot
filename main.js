@@ -18,13 +18,28 @@ whatsapp.on('qr', qr => {
 });
 
 whatsapp.on('message_create', async message => {
+    console.log(message.from)
     const user = await getUserOrCreate(message.from, message.notifyName);
-    if (rules(user, message)) return; 
+    if(!user){
+        console.log('No User')
+        return false
+    } 
+    
+    if (rules(user, message)) return 
+    
     const chat = await message.getChat();
+    if(!chat){
+        console.log('No chat')
+        return
+    }
+
     chat.sendStateTyping();
+    
     const textMessage = message.body.slice(1);
     const userName = message.notifyName || "Anónimo";
+
     if (user.threadId === null) {
+        console.log('No thread id. Creating....')
         const newThread = await assistant.thread.create();
         await setThreadId(user.id, newThread.id);
         user.threadId = newThread.id;

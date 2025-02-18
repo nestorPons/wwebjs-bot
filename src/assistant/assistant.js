@@ -2,6 +2,7 @@ import OpenAI from 'openai';
 import dotenv from 'dotenv';
 dotenv.config();
 
+
 const assistant = {
     id: process.env.OPENAI_ASSISTANT_ID,
     openai: new OpenAI({apiKey: process.env.OPENAI_API_KEY}),
@@ -13,15 +14,10 @@ const assistant = {
         try{
             await this.openai.beta.threads.messages.create(threadId, {
                 role: "user",
-                content: mns,
-                metadata: {
-                    user_id: user.id,
-                    user_name: user.name,
-                }
+                content: mns
             });
             const run = await this.openai.beta.threads.runs.createAndPoll(threadId, {assistant_id: this.id})
-            console.log("Run status:", run.status);
-            if (run.status === 'requires_action') {ç
+            if (run.status === 'requires_action') {
                 //TODO: Implementar la lógica para manejar la acción requerida
                 actions.setAction(run.required_action.submit_tool_outputs.tool_calls);
                 console.log(run.required_action.submit_tool_outputs.tool_calls);
