@@ -19,7 +19,18 @@ const assistant = {
             const run = await this.openai.beta.threads.runs.createAndPoll(threadId, {assistant_id: this.id})
             if (run.status === 'requires_action') {
                 //TODO: Implementar la lógica para manejar la acción requerida
-                actions.setAction(run.required_action.submit_tool_outputs.tool_calls);
+                //actions.setAction(run.required_action.submit_tool_outputs.tool_calls);
+                /*
+                [
+                    {
+                        id: 'call_wHIrhMySuX0wQFgpLujmvjuU',
+                        type: 'function',
+                        function: {
+                        name: 'create_appointment',
+                        arguments: '{"date":"07/12/21","hour":"12:00"}'
+                        }
+                    }
+                    ]*/
                 console.log(run.required_action.submit_tool_outputs.tool_calls);
                 return
             }

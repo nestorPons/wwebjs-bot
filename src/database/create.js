@@ -10,7 +10,8 @@ const createDatabase = async () => {
     )`);
     await db.exec(`CREATE TABLE IF NOT EXISTS appointments (
         user_id TEXT PRIMARY KEY,
-        date TEXT
+        appointment_date TEXT
+        service_time INT
     )`);
     return db;
 };

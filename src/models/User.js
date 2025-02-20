@@ -1,3 +1,5 @@
+import setUseAI from '../database/setUseIA.js'
+
 class User{
     constructor(id, name, threadId = "", use = true)
     {
@@ -5,6 +7,10 @@ class User{
         this.name = name
         this.threadId = threadId
         this.useIA = use
+    }
+    setUseAI(state = fasle)
+    {
+        setUseAI(state);
     }
 }
 
