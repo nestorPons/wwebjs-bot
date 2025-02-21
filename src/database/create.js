@@ -9,9 +9,9 @@ const createDatabase = async () => {
         thread_id TEXT
     )`);
     await db.exec(`CREATE TABLE IF NOT EXISTS appointments (
-        user_id TEXT PRIMARY KEY,
-        appointment_date TEXT
-        service_time INT
+        id INTEGER PRIMARY KEY,
+        user_id TEXT,
+        timestamp INTEGER
     )`);
     return db;
 };

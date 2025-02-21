@@ -1,15 +1,25 @@
+import Action from '../models/Action.js';
 const actions = {
-    id : null,
-    data : null,
-    action : null,
-    setAction: function(action) {
-        console.log('ACTION :' . action)
-        //this.id = action.id;
-        //this.action = action.function.name;
-        //this.data = action.function.arguments;
-
-    },
-    getAction: function() {
-        return this.action;
+    async setActions(actionsAPI) {    
+        /*[{
+            id: 'call_wHIrhMySuX0wQFgpLujmvjuU',
+            type: 'function',
+            function: {
+                name: 'create_appointment',
+                arguments: '{"date":"07/12/21","hour":"12:00"}'
+            }
+        }]*/
+       for(const actionAPI of actionsAPI){
+            console.log('Action API:', actionsAPI);
+            const action = new Action(actionAPI);
+            if (action.name === 'create_appointment') {
+                const { date, hour } = JSON.parse(action.data);
+                const dateTimeString = `${date} ${hour}`;
+                const timestamp = Math.floor(new Date(dateTimeString).getTime() / 1000);
+                console.log(`Creating appointment for ${date} at ${hour} => ${timestamp}`);
+            }
+        }
     }
 }
+
+export default actions;
