@@ -1,5 +1,3 @@
-import appointment from '../database/appointments.js'
-
 class Action {
     constructor(userId, actionAPI) {
         this.id = actionAPI.id;
@@ -9,10 +7,6 @@ class Action {
             this.name = actionAPI.function.name;
             this.data = actionAPI.function.arguments;
         }
-    }
-    async createAppointment(timestamp) {
-        appointment.create(this.userId, timestamp)
-        console.log(`Creating appointment for ${date} at ${hour}`);
     }
 }
 

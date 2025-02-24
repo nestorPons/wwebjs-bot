@@ -1,6 +1,7 @@
 import OpenAI from 'openai';
 import dotenv from 'dotenv';
 import actions from './actions.js';
+import User from '../models/User.js';
 dotenv.config();
 
 const assistant = {
@@ -9,12 +10,16 @@ const assistant = {
     retrieve : async function() {
         return await this.openai.beta.assistants.retrieve(this.id);
     },
-    message: async function (user, mns){
+    message: async function (user = User, mns = '', timestamp = Date.now()) {
         const threadId = user.threadId;
         try{
+            const dateString = new Date(timestamp * 1000).toISOString()
             await this.openai.beta.threads.messages.create(threadId, {
                 role: "user",
-                content: mns
+                content: `
+                    Fecha del mensaje: ${dateString},
+                    Mensaje: ${mns}
+                `
             });
             const run = await this.openai.beta.threads.runs.createAndPoll(threadId, {assistant_id: this.id})
             if (run.status === 'requires_action') {
@@ -35,15 +40,21 @@ const assistant = {
         
         } catch (error) {
             console.error("Error sending message:", error);
-            return "Error: Failed to send message";
+            await this.thread.delete(user);
+            await this.thread.create(user);
+            this.message(user, mns, timestamp);
         }
     },
     thread : {   
-        create: async function() {
-            return await this.openai.beta.threads.create();
+        create: async function(user = User) {
+            const newThread = await this.openai.beta.threads.create();
+            await user.createThreadId(newThread);
+            return newThread
         },
-        delete: async function(threadId) {
-            return await this.openai.beta.threads.del(threadId);
+        delete: async function(threadId, user = User) {
+            await this.openai.beta.threads.del(threadId);
+            await user.deleteThreadId();
+            return 
         }
     }
 

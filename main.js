@@ -2,9 +2,8 @@ import pkg from 'whatsapp-web.js';
 import qrcode from 'qrcode-terminal';
 import rules from './src/helpers/rules.js';
 import assistant from './src/assistant/assistant.js';
-import getUserOrCreate from './src/database/getUser.js';
-import setThreadId from './src/database/setThreadId.js';
 import Message from './src/models/Message.js';
+import User from './src/models/User.js';
 
 const {Client, LocalAuth} = pkg;
 
@@ -21,9 +20,10 @@ whatsapp.on('qr', qr => {
 whatsapp.on('message_create', async wwebjsMessage => {
     const message = new Message(wwebjsMessage);
     //TODO solo para pruebas
-    const user = await getUserOrCreate(message.from, message.notifyName);
+    const user = new User(message.from, message.notifyName);
+    await user.init();
+    console.log('User: ', user.id, message.from);
     message.text = message.body.slice(1)
-    console.log('User: ', user.id);
     if (!rules(user, message)) return 
     if(!user){
         console.log('No User')
@@ -40,13 +40,10 @@ whatsapp.on('message_create', async wwebjsMessage => {
     chat.sendStateTyping();
     
     if (user.threadId === null) {
-        console.log('No thread id. Creating....')
-        const newThread = await assistant.thread.create();
-        await setThreadId(user.id, newThread.id);
-        user.threadId = newThread.id;
+        const newThread = await assistant.thread.create(user);
         console.log("New thread created for user:", user.id);
     }
-    const respond = await assistant.message(user, message.text);
+    const respond = await assistant.message(user, message.text, message.timestamp);
     console.log("Respond: ", respond)
     return whatsapp.sendMessage(user.id, respond);
 });
