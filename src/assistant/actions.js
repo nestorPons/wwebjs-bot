@@ -16,7 +16,9 @@ const actions = {
                 const { date, hour } = JSON.parse(action.data);
                 const dateTimeString = `${date} ${hour}`;
                 const timestamp = Math.floor(new Date(dateTimeString).getTime() / 1000);
+                const respond = await action.createAppointment(userId, timestamp);
                 console.log(`Creating appointment for ${date} at ${hour} => ${timestamp}`);
+                return respond
             }
         }
     }

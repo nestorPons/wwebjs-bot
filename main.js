@@ -1,6 +1,6 @@
 import pkg from 'whatsapp-web.js';
 import qrcode from 'qrcode-terminal';
-import rules from './src/rules.js';
+import rules from './src/helpers/rules.js';
 import assistant from './src/assistant/assistant.js';
 import getUserOrCreate from './src/database/getUser.js';
 import setThreadId from './src/database/setThreadId.js';

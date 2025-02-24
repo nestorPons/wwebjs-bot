@@ -18,8 +18,7 @@ const assistant = {
             });
             const run = await this.openai.beta.threads.runs.createAndPoll(threadId, {assistant_id: this.id})
             if (run.status === 'requires_action') {
-                await actions.setActions(run.required_action.submit_tool_outputs.tool_calls);
-                return
+                return await actions.setActions(user.id, run.required_action.submit_tool_outputs.tool_calls);
             }
             while (run.status !== 'completed') {
                 await new Promise(resolve => setTimeout(resolve, 1000));
@@ -42,6 +41,9 @@ const assistant = {
     thread : {   
         create: async function() {
             return await this.openai.beta.threads.create();
+        },
+        delete: async function(threadId) {
+            return await this.openai.beta.threads.del(threadId);
         }
     }
 
