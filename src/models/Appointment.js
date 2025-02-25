@@ -1,12 +1,17 @@
 import openDatabase from '../database/open.js';
 
 class Appointment {
-    constructor(db, userId, timestamp) {
+    constructor(db, userId, timestamp = null) {
         this.db = db;
+        this.table = 'appointments';
         this.userId = userId;
         this.timestamp = timestamp;
     }
-
+    static async init(userId){
+        const db = openDatabase();
+        const instance = new Appointment(db, userId);
+        return instance;
+    }
     static async create(userId, timestamp) {
         const now = Date.now();
         if(timestamp < now) {
@@ -22,13 +27,22 @@ class Appointment {
 
     async save() {
         const row = await this.db.run(
-            `INSERT INTO appointment (user_id, timestamp) VALUES (?, ?)`,
+            `INSERT INTO ${this.table} (user_id, timestamp) VALUES (?, ?)`,
             this.userId,
             this.timestamp
         );
 
         if (!row) return false;
-        console.log(`Creada cita ${this.userId} para el ${this.timestamp}`);
+        return true;
+    }
+
+    async getAll() {
+        const rows = await this.db.all(
+            `SELECT * FROM ${this.table} WHERE user_id = ?`,
+            this.userId
+        );
+        if (!rows) return false;
+        return rows;
     }
 }
 

@@ -19,10 +19,9 @@ whatsapp.on('qr', qr => {
 
 whatsapp.on('message_create', async wwebjsMessage => {
     const message = new Message(wwebjsMessage);
-    //TODO solo para pruebas
-    const user = new User(message.from, message.notifyName);
-    await user.init();
+    const user = await User.create(message.from, message.notifyName);
     console.log('User: ', user.id, message.from);
+    // TODO - QUITAR ESTO DE AQUI
     message.text = message.body.slice(1)
     if (!rules(user, message)) return 
     if(!user){
@@ -40,9 +39,11 @@ whatsapp.on('message_create', async wwebjsMessage => {
     chat.sendStateTyping();
     
     if (user.threadId === null) {
-        const newThread = await assistant.thread.create(user);
-        console.log("New thread created for user:", user.id);
+        const newThreadId = await assistant.thread.create();
+        await user.createThreadId(newThreadId);
+        console.log("Se ha creado un nuevo hilo: ", newThreadId);
     }
+    
     const respond = await assistant.message(user, message.text, message.timestamp);
     console.log("Respond: ", respond)
     return whatsapp.sendMessage(user.id, respond);

@@ -1,34 +1,41 @@
 import openDatabase from '../database/open.js';
 
 class User{
-    constructor(id, name=null) {
+    constructor(db, id, name=null) {
+        this.db = db;
         this.id = id;
         this.name = name;
         this.threadId = null;
         this.useIA = true;
     }
     
-    async init() {
-        this.db = await openDatabase();
-        await this.getUserOrCreate();
+    static async create(id, name=null) {
+        const db = await openDatabase();
+        const instance = new User(db, id, name);
+        await instance.getUserOrCreate();
+        return instance;
     }
     
     async getUserOrCreate () {
         const row = await this.db.get(`SELECT * FROM users WHERE id = ?`, this.id);
+        console.log('Row: ', row);
         if (row) {
-            this.threadId = row.thread_id ? row.thread_id.toString() : null;
+            this.threadId = row.thread_id ? row.thread_id : null;
             this.useIA = row.use_ia === 1;
             this.name = row.name;
         } else {
             await this.db.run(`INSERT INTO users (id, name) VALUES (?, ?)`, this.id, this.name);
         }
+        return this;
     }
     
-    async setUseAI(state = fasle)
+    async setUseAI(state = false)
     {
         stateInt = state ? 1 : 0;
-        const row = await this.db.get(`UPDATE users SET use_ia = ? WHERE id = ?;`, stateInt, userId);
-        this.useIA =  row ? row.thread_id.toString() : null;
+        this.useIA =  state;
+        await this.db.get(`UPDATE users SET use_ia = ? WHERE id = ?;`, stateInt, this.id);
+        console.log(`El usuario ${this.id} ha cambiado su configuración de IA a ${state ? 'activada' : 'desactivada'}.`);
+        return this.useIA;
     }
 
     async createThreadId  (threadId) {
@@ -37,12 +44,14 @@ class User{
                      this.id, threadId);
         this.threadId = threadId;
         console.log(`Registro actualizado ID del hilo: ${threadId}`);
+        return threadId;
     }
 
     async deleteThreadId() {
-        await this.db.run(`UPDATE users SET thread_id = NULL WHERE id = ?`, this.id);
+        const result = await this.db.run(`UPDATE users SET thread_id = NULL WHERE id = ?`, this.id);
         this.threadId = null;
         console.log(`Hilo eliminado para el usuario: ${this.id}`);
+        return result;
     }
 }
 
