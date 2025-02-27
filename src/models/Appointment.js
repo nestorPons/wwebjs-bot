@@ -8,7 +8,7 @@ class Appointment {
         this.timestamp = timestamp;
     }
     static async init(userId){
-        const db = openDatabase();
+        const db = await openDatabase();
         const instance = new Appointment(db, userId);
         return instance;
     }

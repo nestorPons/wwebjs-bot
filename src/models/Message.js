@@ -9,7 +9,6 @@ class Message {
         this.notifyName = whatsappMessage.notifyName;
         this.timestamp = whatsappMessage.timestamp;
         this.whatsappMessage = whatsappMessage;
-
     }
     getChat = async () => {
         return this.whatsappMessage.getChat();

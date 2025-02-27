@@ -25,7 +25,7 @@ const assistant = {
             const run = await this.openai.beta.threads.runs.createAndPoll(threadId, {assistant_id: this.id})
             if (run.status === 'requires_action') {
                 return await actions.setActions(
-                    user.id, 
+                    user, 
                     run.required_action.submit_tool_outputs.tool_calls
                 );
             }
@@ -43,13 +43,15 @@ const assistant = {
             return messages.data[0].content[0].text.value;
         
         } catch (error) {
-            console.error("Error sending message:", error);
-            await this.thread.delete(user.threadId);
-            await user.deleteThreadId();
-            const threadId = await this.thread.create();
-            await user.createThreadId(threadId);
-            this.message(user, mns, timestamp);
-
+            if(error.type == `invalid_request_error`){
+                await this.thread.delete(user.threadId);
+                await user.deleteThreadId();
+                const threadId = await this.thread.create();
+                await user.createThreadId(threadId);
+                return await this.message(user, mns, timestamp);
+            }else{
+                console.error("Error sending message:", error);
+            }
         }
     },
 
@@ -59,7 +61,11 @@ const assistant = {
             return newThread.id;
         },
         delete: async (threadId) => {
-            await assistant.openai.beta.threads.del(threadId);
+            try {
+                await assistant.openai.beta.threads.del(threadId);
+            }catch (error) {
+                console.error("Error deleting thread:", error);
+            }
             return 
         }
     }

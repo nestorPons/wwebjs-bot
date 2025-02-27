@@ -5,7 +5,7 @@ const createDatabase = async () => {
     await db.exec(`CREATE TABLE IF NOT EXISTS users (
         id TEXT PRIMARY KEY,
         name TEXT,
-        use_ia INTEGER DEFAULT 1,
+        use_ia INTEGER DEFAULT 0,
         thread_id TEXT
     )`);
     await db.exec(`CREATE TABLE IF NOT EXISTS appointments (

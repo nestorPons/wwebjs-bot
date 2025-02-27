@@ -6,7 +6,7 @@ class User{
         this.id = id;
         this.name = name;
         this.threadId = null;
-        this.useIA = true;
+        this.useIA = false;
     }
     
     static async create(id, name=null) {
@@ -18,10 +18,9 @@ class User{
     
     async getUserOrCreate () {
         const row = await this.db.get(`SELECT * FROM users WHERE id = ?`, this.id);
-        console.log('Row: ', row);
         if (row) {
             this.threadId = row.thread_id ? row.thread_id : null;
-            this.useIA = row.use_ia === 1;
+            this.useIA = row.use_ia == 1;
             this.name = row.name;
         } else {
             await this.db.run(`INSERT INTO users (id, name) VALUES (?, ?)`, this.id, this.name);
@@ -31,7 +30,7 @@ class User{
     
     async setUseAI(state = false)
     {
-        stateInt = state ? 1 : 0;
+        const stateInt = state ? 1 : 0;
         this.useIA =  state;
         await this.db.get(`UPDATE users SET use_ia = ? WHERE id = ?;`, stateInt, this.id);
         console.log(`El usuario ${this.id} ha cambiado su configuración de IA a ${state ? 'activada' : 'desactivada'}.`);

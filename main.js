@@ -18,17 +18,27 @@ whatsapp.on('qr', qr => {
 });
 
 whatsapp.on('message_create', async wwebjsMessage => {
+    console.log(wwebjsMessage);
     const message = new Message(wwebjsMessage);
     const user = await User.create(message.from, message.notifyName);
-    console.log('User: ', user.id, message.from);
-    // TODO - QUITAR ESTO DE AQUI
-    message.text = message.body.slice(1)
-    if (!rules(user, message)) return 
-    if(!user){
-        console.log('No User')
-        return false
-    } 
+    // TODO - DESARROLLO
+    if(message.from == "34660291797@c.us") {
+        if(!message.body.startsWith('.')) return false;
+        message.text = message.body.slice(1)
+    }
+    // ------------------------------------------
+    switch (message.text) {
+        case "Activar bot":
+            await user.setUseAI(true);
+            return whatsapp.sendMessage(user.id, "Bot activado");
+        case "Desactivar bot":
+            await user.setUseAI(false);
+            return whatsapp.sendMessage(user.id, "Bot desactivado");
+    }
     
+    const permission = rules(user, message)     
+    if (!permission) return 
+
     const chat = await message.getChat();
     if(!chat){
         console.log('No chat')

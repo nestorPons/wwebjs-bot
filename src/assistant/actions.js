@@ -2,7 +2,7 @@ import Action from '../models/Action.js';
 import Appointment from '../models/Appointment.js';
 
 const actions = {
-    async setActions(userId, actionsAPI) {    
+    async setActions(user, actionsAPI) {    
         const actionAPI  = actionsAPI[0];
         /*[{
             id: 'call_wHIrhMySuX0wQFgpLujmvjuU',
@@ -13,20 +13,25 @@ const actions = {
             }
         }]*/
         console.log('Action API:', actionsAPI);
-        const action = new Action(userId, actionAPI);
+        const action = new Action(user.id, actionAPI);
         
         switch (action.name) {
             case 'get_appointments':
-                const getResponds = this.appointment.get(userId);
-                if(getResponds){
+                const getResponds = await this.appointment.get(user.id);
+                console.log('Get responds:', getResponds);
+                if (getResponds.length > 0) {
                     return `Tienes las siguientes citas: ${getResponds}`;
+                }else{
+                    return `No tienes citas`;
                 }
             case 'create_appointment':
-
-                const respond = this.appointment.create(userId, action.date, action.hour);
+                const respond = this.appointment.create(user.id, action.date, action.hour);
                 if(respond){
                     return `Cita creada correctamente para el ${action.date} a las ${action.hour}` ;
                 }
+            case 'delete_appointments':
+                await user.setUseAI(false);
+                return `Se lo comunico al Señor y se pondrá en contacto con usted` ;
             default:
                 return 'No he podido procesar tu solicitud';
         }
@@ -50,19 +55,18 @@ const actions = {
         get: async function (userId) {
             const appointment = await Appointment.init(userId);
             const appointments = await appointment.getAll();
-            if(!appointments) return false;
+            if (!appointments) return false;
             const appointmentsStructured = appointments.map(appointment => {
                 const date = new Date(appointment.timestamp);
                 const day = date.getDate();
                 const month = date.getMonth() + 1;
                 const year = date.getFullYear();
-                const hour = date.getHours();
-                const minutes = date.getMinutes();
+                const hour = String(date.getHours()).padStart(2, '0');  
+                const minutes = String(date.getMinutes()).padStart(2, '0');  
                 return `${day}/${month}/${year} a las ${hour}:${minutes}`;
             });
-            
             return appointmentsStructured;
-        }
+        }        
     }
 }
 
