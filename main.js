@@ -7,7 +7,15 @@ import User from './src/models/User.js';
 
 const {Client, LocalAuth} = pkg;
 
-const whatsapp = new Client({authStrategy: new LocalAuth()});
+const whatsapp = new Client({
+    authStrategy: new LocalAuth(),
+    puppeteer: {
+        args: [
+            '--no-sandbox',
+            '--disable-setuid-sandbox'
+        ]
+    }
+});
 
 whatsapp.on('ready', () => {
     console.log('Client is ready!');
@@ -18,45 +26,36 @@ whatsapp.on('qr', qr => {
 });
 
 whatsapp.on('message_create', async wwebjsMessage => {
-    console.log(wwebjsMessage);
     const message = new Message(wwebjsMessage);
+    console.log(message.to);
     const user = await User.create(message.from, message.notifyName);
+    const chat = await message.getChat();
     // TODO - DESARROLLO
+    console.log(message.from, message.text, user.useIA)
     if(message.from == "34660291797@c.us") {
         if(!message.body.startsWith('.')) return false;
         message.text = message.body.slice(1)
     }
-    // ------------------------------------------
-    switch (message.text) {
-        case "Activar bot":
-            await user.setUseAI(true);
-            return whatsapp.sendMessage(user.id, "Bot activado");
-        case "Desactivar bot":
-            await user.setUseAI(false);
-            return whatsapp.sendMessage(user.id, "Bot desactivado");
-    }
-    
-    const permission = rules(user, message)     
-    if (!permission) return 
-
-    const chat = await message.getChat();
+    const permission = await rules(user, message, assistant.canal)     
+    if (!permission) return
+      
     if(!chat){
         console.log('No chat')
         return
     }
     
-    console.log("Message: ", message.body);
     chat.sendStateTyping();
-    
     if (user.threadId === null) {
         const newThreadId = await assistant.thread.create();
         await user.createThreadId(newThreadId);
         console.log("Se ha creado un nuevo hilo: ", newThreadId);
     }
+    const respond = (!permission === 'string')?
+        permission: 
+        await assistant.message(user, message.text, message.timestamp);
     
-    const respond = await assistant.message(user, message.text, message.timestamp);
     console.log("Respond: ", respond)
-    return whatsapp.sendMessage(user.id, respond);
+    return whatsapp.sendMessage(message.to, respond);
 });
 
 whatsapp.initialize();

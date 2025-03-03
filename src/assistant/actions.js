@@ -1,5 +1,7 @@
 import Action from '../models/Action.js';
 import Appointment from '../models/Appointment.js';
+import assistantsData from '../database/assistants.json' with { type: 'json' };
+import assistant from './assistant.js';
 
 const actions = {
     async setActions(user, actionsAPI) {    
@@ -16,6 +18,17 @@ const actions = {
         const action = new Action(user.id, actionAPI);
         
         switch (action.name) {
+            case 'list_assistants':
+                const dataText = assistantsData.map(obj => `${obj.name}: ${obj.description} \n`);
+                return dataText;
+            case 'change_assistant':
+                const name = action.args.name;
+                const nameNorm = name.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9 ]/g, "");
+                const result = assistantsData.find(obj => obj['name'] === nameNorm);
+                assistant.change(result.id) 
+                console.log(result)
+
+                return `Asistente cambiado a: ${nameNorm}`;
             case 'get_appointments':
                 const getResponds = await this.appointment.get(user.id);
                 console.log('Get responds:', getResponds);

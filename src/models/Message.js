@@ -5,8 +5,9 @@ class Message {
         this.body = whatsappMessage.body;
         this.text = whatsappMessage.body;
         this.type = whatsappMessage.type;
+        this.to = whatsappMessage.to;
         this.hasMedia = whatsappMessage.hasMedia;
-        this.notifyName = whatsappMessage.notifyName;
+        this.notifyName = whatsappMessage._data.notifyName;
         this.timestamp = whatsappMessage.timestamp;
         this.whatsappMessage = whatsappMessage;
     }

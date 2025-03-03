@@ -7,7 +7,10 @@ dotenv.config();
 const assistant = {
     id: process.env.OPENAI_ASSISTANT_ID,
     openai: new OpenAI({apiKey: process.env.OPENAI_API_KEY}),
-
+    canal: process.env.AIBOT_CANAL, 
+    change: function(newId) {
+        this.id = newId;
+    },
     retrieve : async function() {
         return await this.openai.beta.assistants.retrieve(this.id);
     },
