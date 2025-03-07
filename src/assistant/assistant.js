@@ -59,8 +59,15 @@ const assistant = {
     },
 
     thread : {   
-        create: async () => {
+        create: async (userName) => {
             const newThread = await assistant.openai.beta.threads.create();
+            const run = await assistant.openai.beta.threads.runs.create(
+                newThread,
+                { 
+                    assistant_id: assistant.id,
+                    instructions: `El chat del quien envia el mensaje es de ${userName}` 
+                }
+              );
             return newThread.id;
         },
         delete: async (threadId) => {

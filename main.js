@@ -27,16 +27,16 @@ whatsapp.on('qr', qr => {
 
 whatsapp.on('message_create', async wwebjsMessage => {
     const message = new Message(wwebjsMessage);
-    console.log(message.to);
     const user = await User.create(message.from, message.notifyName);
     const chat = await message.getChat();
     // TODO - DESARROLLO
-    console.log(message.from, message.text, user.useIA)
+    console.log(message.from, message.to, message.text, user.useIA)
     if(message.from == "34660291797@c.us") {
         if(!message.body.startsWith('.')) return false;
         message.text = message.body.slice(1)
     }
-    const permission = await rules(user, message, assistant.canal)     
+    const permission = await rules(user, message, assistant.canal) 
+    console.log(permission);    
     if (!permission) return
       
     if(!chat){
@@ -46,7 +46,7 @@ whatsapp.on('message_create', async wwebjsMessage => {
     
     chat.sendStateTyping();
     if (user.threadId === null) {
-        const newThreadId = await assistant.thread.create();
+        const newThreadId = await assistant.thread.create(user.name);
         await user.createThreadId(newThreadId);
         console.log("Se ha creado un nuevo hilo: ", newThreadId);
     }
@@ -55,7 +55,7 @@ whatsapp.on('message_create', async wwebjsMessage => {
         await assistant.message(user, message.text, message.timestamp);
     
     console.log("Respond: ", respond)
-    return whatsapp.sendMessage(message.to, respond);
+    return whatsapp.sendMessage(message.from, respond);
 });
 
 whatsapp.initialize();

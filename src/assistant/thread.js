@@ -1,13 +1,20 @@
 import assistant from "./assistant.js";
 
 const thread = {   
-    openai : assistant.openai, 
-    create: async function() {
-        return await this.openai.beta.threads.create();
+    assitant : assistant.openai, 
+    create: async () => {
+        const newThread = await this.assistant.openai.beta.threads.create();
+        return newThread.id;
     },
-    delete: async function(threadId) {
-        const response = await this.openai.beta.threads.del(threadId);
+    delete: async (threadId) => {
+        try {
+            await this.assistant.openai.beta.threads.del(threadId);
+        }catch (error) {
+            console.error("Error deleting thread:", error);
+        }
+        return 
     }
+    
 }
 
 export default thread;
