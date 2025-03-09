@@ -27,16 +27,15 @@ whatsapp.on('qr', qr => {
 
 whatsapp.on('message_create', async wwebjsMessage => {
     const message = new Message(wwebjsMessage);
-    const user = await User.create(message.from, message.notifyName);
+    const user = await User.findOrCreate(message.from, message.notifyName);
     const chat = await message.getChat();
     // TODO - DESARROLLO
-    console.log(message.from, message.to, message.text, user.useIA)
+    console.log(message.from, message.text, user.use_ia)
     if(message.from == "34660291797@c.us") {
         if(!message.body.startsWith('.')) return false;
         message.text = message.body.slice(1)
     }
-    const permission = await rules(user, message, assistant.canal) 
-    console.log(permission);    
+    const permission = await rules(user, message, assistant.canal)     
     if (!permission) return
       
     if(!chat){
@@ -45,9 +44,9 @@ whatsapp.on('message_create', async wwebjsMessage => {
     }
     
     chat.sendStateTyping();
-    if (user.threadId === null) {
-        const newThreadId = await assistant.thread.create(user.name);
-        await user.createThreadId(newThreadId);
+    if (user.thread_id === null) {
+        const newThreadId = await assistant.thread.create();
+        await user.updateTreatId(newThreadId);
         console.log("Se ha creado un nuevo hilo: ", newThreadId);
     }
     const respond = (!permission === 'string')?
@@ -55,7 +54,7 @@ whatsapp.on('message_create', async wwebjsMessage => {
         await assistant.message(user, message.text, message.timestamp);
     
     console.log("Respond: ", respond)
-    return whatsapp.sendMessage(message.from, respond);
+    return whatsapp.sendMessage(message.to, respond);
 });
 
 whatsapp.initialize();
