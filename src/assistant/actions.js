@@ -1,7 +1,7 @@
 import Action from '../models/Action.js';
 import Appointment from '../models/Appointment.js';
-import assistantsData from '../database/assistants.json' with { type: 'json' };
 import assistant from './assistant.js';
+import assistantsData from '../database/assistants.json' assert { type: 'json' };
 
 const actions = {
     async setActions(user, actionsAPI) {    

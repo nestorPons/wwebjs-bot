@@ -1,7 +1,7 @@
 import OpenAI from 'openai';
 import dotenv from 'dotenv';
 import actions from './actions.js';
-import User from '../models/User.js';
+
 dotenv.config();
 
 const assistant = {
@@ -14,8 +14,8 @@ const assistant = {
     retrieve : async function() {
         return await this.openai.beta.assistants.retrieve(this.id);
     },
-    message: async function (user= new User, mns = '', timestamp = Date.now()) {
-        const threadId = user.threadId;
+    message: async function (user, mns = '', timestamp = Date.now()) {
+        const threadId = user.thread_id;
         try{
             const dateString = new Date(timestamp * 1000).toISOString()
             await this.openai.beta.threads.messages.create(threadId, {
@@ -47,10 +47,9 @@ const assistant = {
         
         } catch (error) {
             if(error.type == `invalid_request_error`){
-                await this.thread.delete(user.threadId);
-                await user.deleteThreadId();
+                await this.thread.delete(user.thread_id);
                 const threadId = await this.thread.create();
-                await user.createThreadId(threadId);
+                await user.updateThreadId(threadId);
                 return await this.message(user, mns, timestamp);
             }else{
                 console.error("Error sending message:", error);
@@ -59,15 +58,8 @@ const assistant = {
     },
 
     thread : {   
-        create: async (userName) => {
+        create: async () => {
             const newThread = await assistant.openai.beta.threads.create();
-            const run = await assistant.openai.beta.threads.runs.create(
-                newThread,
-                { 
-                    assistant_id: assistant.id,
-                    instructions: `El chat del quien envia el mensaje es de ${userName}` 
-                }
-              );
             return newThread.id;
         },
         delete: async (threadId) => {

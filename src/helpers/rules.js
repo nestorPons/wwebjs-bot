@@ -9,7 +9,7 @@ const rules = async (user, message, groupId) => {
     const respond = null;
     switch (message.text) {
         case "clear_thread":
-            user.threadId  = null;
+            user.thread_id  = null;
             break;
         case "Activar bot":
             await user.setUseAI(true);
@@ -20,7 +20,7 @@ const rules = async (user, message, groupId) => {
     }
 
     if(message.hasMedia || message.type !== 'chat') return false;
-    return user.useIA || message.to == groupId;
+    return user.use_ia || message.to == groupId;
 }
 
 export default rules;
