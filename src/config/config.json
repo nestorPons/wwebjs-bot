@@ -1,0 +1,13 @@
+{
+    "userId": "34660291797@c.us",
+    "chatId": "34660291797@c.us",
+    "appointments": {
+        "reminder": {
+            "active": true,
+            "time" : {
+                "cron": "* 10 * * *, 1 10 * * *"
+            },
+            "menssage": "📅 Hola {name},tienes una cita programada el {date}.¡No olvides asistir!"
+        }
+    }
+}

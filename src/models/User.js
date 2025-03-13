@@ -1,5 +1,4 @@
-import { Model } from 'objection';
-import '../database/conn.js';
+import { Model } from '#conn';
 
 class User extends Model {
 
@@ -20,15 +19,15 @@ class User extends Model {
         
     async setUseAI(state = false) {
         this.use_ia = state;
-        await this.$query().patchAndFetch({ use_ia: stateInt });
+        await this.$query().patchAndFetch({ use_ia: state });
         console.log(`El usuario ${this.id} ha cambiado su configuración de IA a ${state ? 'activada' : 'desactivada'}.`);
         return this.use_ia;
     }
 
-    async updateTreatId  (threadId) {
+    async updateThreadId  (threadId) {
         try{
-            this.treat_id = threadId;
-            return await this.$query().patchAndFetch({ treat_id: threadId });
+            this.thread_id = threadId;
+            return await this.$query().patchAndFetch({ thread_id: threadId });
         }catch(error){
             console.error('Error al actualizar el hilo:', error);
             return false;

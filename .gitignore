@@ -1,8 +1,9 @@
+.vscode
 .wwebjs_auth
 .wwebjs_cache
 .server
+.env
 node_modules
 package-lock.json
 database.sqlite
-.env
-.vscode
+tmp/*.*

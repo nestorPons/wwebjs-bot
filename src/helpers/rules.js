@@ -6,20 +6,14 @@ const rules = async (user, message, groupId) => {
     //LLEDO 34601297415@c.us
     //NEREA 34613320927@c.us
     //NESTOR 34660291797@c.us
-    const respond = null;
-    switch (message.text) {
-        case "clear_thread":
-            user.thread_id  = null;
-            break;
-        case "Activar bot":
-            await user.setUseAI(true);
-            return  "Bot activado";
-        case "Desactivar bot":
-            await user.setUseAI(false);
-            return  "Bot desactivado";
+    
+    if (message.fromMe) {
+        console.log('Message from me');
+        if (!message.text.startsWith('.')) return false;
+        message.text = message.body.slice(1);
+        return true;
     }
 
-    if(message.hasMedia || message.type !== 'chat') return false;
     return user.use_ia || message.to == groupId;
 }
 

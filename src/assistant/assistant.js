@@ -1,6 +1,7 @@
+import fs from 'fs';
 import OpenAI from 'openai';
 import dotenv from 'dotenv';
-import actions from './actions.js';
+import actions from '#assistant/actions.mjs';
 
 dotenv.config();
 
@@ -56,7 +57,49 @@ const assistant = {
             }
         }
     },
-
+    saveAudio: async function (media, id) {
+        const filePath = `./tmp/${id}.ogg`;
+        const buffer = Buffer.from(media.data, 'base64');
+        fs.writeFileSync(filePath, buffer);
+        return filePath;
+    },
+    transcribeAudio: async function (filePath) { 
+        console.log("Transcribiendo audio..." , filePath);
+        if (fs.existsSync(filePath)) {
+            console.log('El archivo existe.');
+            try {
+                const transcription = await this.openai.audio.transcriptions.create({
+                    file: fs.createReadStream(filePath),
+                    model: "whisper-1",
+                });
+        
+                console.log("Transcripción:", transcription.text);
+                return transcription.text;
+            } catch (error) {
+                console.error("Error al transcribir:", error);
+                return "Error al transcribir el audio.";
+            }
+        } else {
+            return('El archivo no existe.');
+            
+        }
+    
+    },
+    processAudioMessage: async function (media, fileName) {
+        try {
+            console.log("Recibido audio, procesando...");
+    
+            // Guardar el audio
+            const filePath = await this.saveAudio(media, fileName);
+            console.log("Archivo guardado en:", filePath);
+            // Transcribir con Whisper
+            const transcript = await this.transcribeAudio(filePath);
+            return transcript; // Puedes usarlo para responder en WhatsApp
+        } catch (error) {
+            console.error("Error procesando el audio:", error);
+            return "No pude entender el audio.";
+        }
+    },
     thread : {   
         create: async () => {
             const newThread = await assistant.openai.beta.threads.create();

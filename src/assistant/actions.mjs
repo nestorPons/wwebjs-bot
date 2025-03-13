@@ -1,8 +1,10 @@
 import Action from '../models/Action.js';
 import Appointment from '../models/Appointment.js';
 import assistant from './assistant.js';
-import assistantsData from '../database/assistants.json' assert { type: 'json' };
+import { readFile } from 'fs/promises'
 
+const assistantsDataJson = await readFile('src/database/assistants.json', 'utf8');
+const assistantsData = JSON.parse(assistantsDataJson);
 const actions = {
     async setActions(user, actionsAPI) {    
         const actionAPI  = actionsAPI[0];
@@ -66,8 +68,7 @@ const actions = {
             return true;
         },
         get: async function (userId) {
-            const appointment = await Appointment.init(userId);
-            const appointments = await appointment.getAll();
+            const appointments = await Appointment.query().where('user_id',userId);
             if (!appointments) return false;
             const appointmentsStructured = appointments.map(appointment => {
                 const date = new Date(appointment.timestamp);

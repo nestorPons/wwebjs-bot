@@ -1,19 +1,18 @@
-import openDatabase from './open.js';
+import sqlite3 from 'sqlite3';
+import { open as sqliteOpen } from 'sqlite';
+import dotenv from 'dotenv';
+import { exec } from 'child_process';
+
+dotenv.config();
 
 const createDatabase = async () => {
-    const db = await openDatabase();
-    await db.exec(`CREATE TABLE IF NOT EXISTS users (
-        id TEXT PRIMARY KEY,
-        name TEXT,
-        use_ia INTEGER DEFAULT 0,
-        thread_id TEXT
-    )`);
-    await db.exec(`CREATE TABLE IF NOT EXISTS appointments (
-        id INTEGER PRIMARY KEY,
-        user_id TEXT,
-        timestamp INTEGER
-    )`);
-    return db;
+    if (process.env.DB_CONNECTION === 'sqlite3') {
+        const db = await sqliteOpen({
+            filename: process.env.DB_DATABASE,
+            driver: sqlite3.Database
+        });
+        return db;
+    }
 };
 
 
@@ -21,6 +20,18 @@ const createDatabase = async () => {
 if (import.meta.url === `file://${process.argv[1]}`) {
     createDatabase().then(() => {
         console.log("Base de datos creada correctamente.");
+        const command = `npx knex --knexfile=knexfile.cjs migrate:latest`;
+        exec(command, (error, stdout, stderr) => {
+            if (error) {
+                console.error(`❌ Error: ${error.message}`);
+                return;
+            }
+            if (stderr) {
+                console.error(`⚠️ Stderr: ${stderr}`);
+                return;
+            }
+            console.log(`📂 Salida:\n${stdout}`);
+        });
     }).catch(err => {
         console.error("Error al crear la base de datos:", err);
     });

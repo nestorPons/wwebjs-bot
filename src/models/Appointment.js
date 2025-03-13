@@ -1,4 +1,4 @@
-import { Model } from 'objection';
+import { Model } from '#conn';
 
 class Appointment extends Model {
     static get tableName() {
