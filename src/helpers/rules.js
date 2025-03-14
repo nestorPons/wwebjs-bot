@@ -13,6 +13,10 @@ const rules = async (user, message, groupId) => {
         message.text = message.body.slice(1);
         return true;
     }
+    
+    console.log('Use IA:' , user.use_ia);
+    console.log('Group:' , message.to == groupId);
+    
 
     return user.use_ia || message.to == groupId;
 }

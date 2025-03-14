@@ -8,6 +8,7 @@ import assistant from "#assistant/assistant.js";
 import Message from "#models/Message.js";
 import User from "#models/User.js";
 import "#assistant/agenda.mjs";
+import commands from "#commands/commands.mjs";
 
 const {Client, LocalAuth} = pkg;
 
@@ -36,17 +37,10 @@ whatsapp.on('message_create', async wwebjsMessage => {
         console.log('No chat');
         return;
     }
-    
-    switch (message.text) {
-        case "clear_thread":
-            user.thread_id  = null;
-            break;
-        case "Activar bot":
-            await user.setUseAI(true);
-            return  "Bot activado";
-        case "Desactivar bot":
-            await user.setUseAI(false);
-            return  "Bot desactivado";
+
+    if(commands.isCommand(message.text)) {
+        const respond = await commands.process(user, message.text);
+        return await whatsapp.sendMessage(message.from, respond)
     }
 
     const permission = await rules(user, message, assistant.canal);
@@ -82,7 +76,6 @@ whatsapp.on('message_create', async wwebjsMessage => {
 
         // Unir los mensajes en un solo string
         const combinedMessage = messageQueue[message.from].messages.join(' ')
-
         // Generar la respuesta con la IA
         const respond = await assistant.message(user, combinedMessage, message.timestamp);
 

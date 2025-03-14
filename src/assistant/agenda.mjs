@@ -51,12 +51,11 @@ agenda.define('send_remember', async () => {
 await agenda.start();
 
 (async () => {
-    console.log('✅ Agenda iniciada');
     const sendReminder = config.appointments.reminder.active || false
     if (sendReminder) {
+        console.log('✅ Cron activado');
         const timer = config.appointments.reminder.time.cron
         await agenda.every(timer, 'send_remember');
-        console.log('✅ Trabajo programado: enviar recordatorios a las 9:00 AM todos los días');
     }
 })(); 
 

@@ -15,7 +15,8 @@
     "#helpers/*": "./src/helpers/*",
     "#assistant/*": "./src/assistant/*",
     "#models/*": "./src/models/*",
-    "#config/*": "./src/config/*"
+    "#config/*": "./src/config/*",
+    "#commands/*": "./src/commands/*"
   },
   "description": "",
   "dependencies": {
